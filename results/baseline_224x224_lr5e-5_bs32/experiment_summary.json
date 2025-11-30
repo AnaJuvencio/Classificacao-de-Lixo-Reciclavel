@@ -1,0 +1,41 @@
+{
+  "experimento": "baseline_224x224_lr5e-5_bs32",
+  "data": "2025-11-29 21:57:46",
+  "configuracao": {
+    "IMG_SIZE": [
+      224,
+      224
+    ],
+    "BATCH_SIZE": 32,
+    "base_lr": 5e-05,
+    "USE_CLASS_WEIGHT": true,
+    "epochs_cnn": 25,
+    "epochs_tl_freeze": 10,
+    "epochs_tl_finetune": 15
+  },
+  "resultados": {
+    "cnn_baseline_acc": 0.3855421543121338,
+    "mobilenetv2_tl_acc": 0.7510040402412415,
+    "melhor_modelo": "MobileNetV2 TL",
+    "diferenca_performance": "0.3655"
+  },
+  "arquivos_copiados": [
+    "  ✅ cnn_baseline_best.keras → models/",
+    "  ✅ cnn_baseline_history.csv → history/",
+    "  ✅ mobilenetv2_tl_freeze_history.csv → history/",
+    "  ✅ mobilenetv2_tl_finetune_history.csv → history/",
+    "  ✅ acc_cnn_baseline.png → plots/",
+    "  ✅ loss_cnn_baseline.png → plots/",
+    "  ✅ acc_mobilenetv2_tl_freeze.png → plots/",
+    "  ✅ loss_mobilenetv2_tl_freeze.png → plots/",
+    "  ✅ acc_mobilenetv2_tl_finetune.png → plots/",
+    "  ✅ loss_mobilenetv2_tl_finetune.png → plots/",
+    "  ✅ cm_abs_cnn_baseline.png → plots/",
+    "  ✅ cm_norm_cnn_baseline.png → plots/",
+    "  ✅ cm_abs_mobilenetv2_tl.png → plots/",
+    "  ✅ cm_norm_mobilenetv2_tl.png → plots/",
+    "  ✅ class_report_cnn_baseline.csv → reports/",
+    "  ✅ class_report_mobilenetv2_tl.csv → reports/",
+    "  ✅ models_comparison.csv → reports/"
+  ]
+}
