@@ -33,6 +33,39 @@ Thumbs.db
 *.log
 logs/
 
-# Modelos muito grandes (opcional)
+# Modelos muito grandes - causam problemas de espaço em disco
 *.h5
-# *.keras  # Descomente se os modelos ficarem muito grandes
+*.hdf5
+*.keras
+*.pb
+*.pth
+*.pt
+*.ckpt
+*.weights
+*.model
+*.pkl
+*.joblib
+*.dill
+*.onnx
+*.tflite
+*.mlmodel
+*.bin
+models/
+model/
+checkpoints/
+checkpoint/
+*.index
+*.data-*
+*.meta
+saved_model/
+
+# Resultados de experimentos - arquivos grandes
+results/*/models/
+results/*/plots/
+results/*/history/
+results/*/reports/
+
+# Arquivos de backup e temporários
+*.bak
+*.backup
+*.swp
