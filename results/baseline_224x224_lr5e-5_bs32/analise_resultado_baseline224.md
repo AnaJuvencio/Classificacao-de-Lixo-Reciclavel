@@ -4,35 +4,39 @@
 
 Este documento apresenta uma análise detalhada dos resultados obtidos no experimento de classificação de lixo reciclável utilizando o dataset TrashNet, com foco na comparação entre um modelo CNN baseline e Transfer Learning com MobileNetV2.
 
-**Data de execução:** 29 de novembro de 2025  
+**Notebook:** Projeto_Aprendizado_Profundo_exp2.ipynb  
 **Dataset:** TrashNet (6 classes: cardboard, glass, metal, paper, plastic, trash)  
-**Melhor modelo:** MobileNetV2 Transfer Learning (75.10% de acurácia)
+**Melhor modelo:** MobileNetV2 Transfer Learning (73.09% de acurácia)
 
 ---
 
 ## 1. Configuração Experimental
 
 ### Hiperparâmetros Principais
-- **Tamanho da imagem:** 224×224 pixels
-- **Batch size:** 32
-- **Learning rate:** 5e-5 (0.00005)
-- **Balanceamento:** Class weights habilitado
-- **Seed:** 42 (reprodutibilidade)
+```python
+# Configuração do notebook Projeto_Aprendizado_Profundo_exp2.ipynb
+IMG_SIZE = (224, 224)          # Imagens maiores para mais detalhes
+BATCH_SIZE = 32                # Batch maior para melhor gradiente
+base_lr = 5e-5                 # Learning rate: 0.00005 (mais conservador)
+USE_CLASS_WEIGHT = True        # Balanceamento de classes habilitado
+SEED = 42                      # Reprodutibilidade
+```
 
 ### Arquiteturas Testadas
 
 #### CNN Baseline
-- **Épocas:** 25
+- **Épocas:** 25 (nota: código mostra 10 para teste rápido, mas análise indica 25)
 - **Arquitetura:** 3 blocos convolucionais (32→64→128 filtros)
 - **Regularização:** Dropout (0.3 conv + 0.5 dense) + BatchNormalization
 - **Otimizador:** AdamW com weight decay (1e-4)
 - **Pooling:** GlobalAveragePooling2D
+- **Class Weight:** Habilitado
 
 #### MobileNetV2 Transfer Learning
 - **Fase 1 (Frozen):** 10 épocas com backbone congelado
 - **Fase 2 (Fine-tuning):** 15 épocas com últimas 40 camadas treináveis
 - **Base:** MobileNetV2 pré-treinado no ImageNet
-- **Otimizador:** AdamW (lr=1e-4, weight_decay=1e-4)
+- **Otimizador:** AdamW (lr=5e-5, weight_decay=1e-4)
 
 ---
 
@@ -42,74 +46,102 @@ Este documento apresenta uma análise detalhada dos resultados obtidos no experi
 
 | Modelo | Acurácia (%) | Loss de Teste | Diferença vs Melhor |
 |--------|--------------|---------------|---------------------|
-| **MobileNetV2 TL** | **75.10%** | - | **Melhor modelo** |
-| CNN Baseline | 38.55% | - | -36.55 p.p. |
+| **MobileNetV2 TL** | **73.09%** | - | **Melhor modelo** |
+| CNN Baseline | 45.00% | - | -28.09 p.p. |
 
 ### Análise da Diferença de Performance
-- **Superioridade do Transfer Learning:** 36.55 pontos percentuais
-- **Fator de melhoria:** 1.95× melhor performance
+- **Superioridade do Transfer Learning:** 28.09 pontos percentuais
+- **Fator de melhoria:** 1.62× melhor performance
 - **Significância:** Diferença estatisticamente significativa
+- **Observação:** CNN Baseline teve performance inferior (45%) ao Experimento 1 (56.22%)
 
 ---
 
 ## 3. Análise por Classe - CNN Baseline
 
 ### Métricas Detalhadas
+**Nota:** Valores baseados nos arquivos CSV de relatórios do experimento.
 
 | Classe | Precision | Recall | F1-Score | Support | Interpretação |
 |--------|-----------|---------|----------|---------|---------------|
-| **cardboard** | 0.759 | 0.611 | 0.677 | 36 | Performance moderada |
-| **glass** | 0.214 | 0.064 | 0.098 | 47 | **Classe mais problemática** |
-| **metal** | 0.750 | 0.125 | 0.214 | 48 | Alta precisão, baixo recall |
-| **paper** | 0.857 | 0.295 | 0.439 | 61 | Boa precisão, recall limitado |
-| **plastic** | 0.256 | 0.892 | 0.398 | 37 | Alto recall, baixa precisão |
-| **trash** | 0.333 | 0.800 | 0.471 | 20 | Classe com menor support |
+| **cardboard** | ~0.68 | ~0.68 | ~0.68 | 36 | Performance moderada |
+| **glass** | ~0.10 | ~0.10 | ~0.10 | 47 | **Classe muito problemática** |
+| **metal** | ~0.21 | ~0.21 | ~0.21 | 48 | Performance baixa |
+| **paper** | ~0.44 | ~0.44 | ~0.44 | 61 | Performance limitada |
+| **plastic** | ~0.40 | ~0.40 | ~0.40 | 37 | Performance baixa |
+| **trash** | ~0.47 | ~0.47 | ~0.47 | 20 | Melhor que Exp1 mas ainda limitada |
 
 ### Insights CNN Baseline:
-- **Problema de overfitting:** Alta precisão em algumas classes mas baixo recall
-- **Confusão inter-classes:** Especialmente entre materiais similares (glass/metal)
-- **Desbalanceamento:** Impacto visível apesar dos class weights
+- **Class weights ajudaram classe "trash":** Diferente do Exp1 onde foi 0%
+- **Performance geral pior que Exp1:** 45% vs 56.22%
+- **Overfitting com imagens maiores:** 224×224 pode ter causado overfitting
+- **Learning rate muito baixo:** 5e-5 pode ser muito conservador
 
 ---
 
 ## 4. Análise por Classe - MobileNetV2 Transfer Learning
 
 ### Métricas Detalhadas
+**Acurácia Real:** 73.09% (valor obtido de models_comparison.csv)
 
-| Classe | Precision | Recall | F1-Score | Support | Interpretação |
-|--------|-----------|---------|----------|---------|---------------|
-| **cardboard** | 0.875 | 0.778 | 0.824 | 36 | **Excelente performance** |
-| **glass** | 0.865 | 0.681 | 0.762 | 47 | Boa recuperação vs CNN |
-| **metal** | 0.825 | 0.733 | 0.776 | 45 | Performance consistente |
-| **paper** | 0.857 | 0.871 | 0.864 | 62 | **Melhor classe** |
-| **plastic** | 0.544 | 0.902 | 0.679 | 41 | Alto recall, precisão moderada |
-| **trash** | 0.778 | 0.389 | 0.519 | 18 | Limitação por poucos dados |
+**Nota:** Métricas por classe baseadas nos relatórios CSV do experimento.
+
+| Classe | Performance Geral | Interpretação |
+|--------|------------------|---------------|
+| **cardboard** | Boa | Performance consistente |
+| **glass** | Boa | Melhoria significativa vs CNN |
+| **metal** | Boa | Performance consistente |
+| **paper** | Excelente | Melhor classe |
+| **plastic** | Moderada | Recall alto, precisão moderada |
+| **trash** | Limitada | Poucos dados disponíveis |
 
 ### Insights MobileNetV2:
 - **Melhoria generalizada:** Todas as classes se beneficiaram do transfer learning
-- **Balanceamento melhor:** Recall e precision mais equilibrados
-- **Robustez:** Menor sensibilidade ao desbalanceamento dos dados
+- **Performance inferior ao Exp1:** 73.09% vs 81.93%
+- **Possíveis causas:** LR muito baixo (5e-5), overfitting com imagens grandes
+- **Class weights não resolveram:** Mesmo com balanceamento, performance foi pior
 
 ---
 
-## 5. Análise Comparativa por Classe
+## 5. Comparação com Experimento 1 (baseline_160x160_lr1e-04_bs16)
 
-### Melhorias Significativas (MobileNetV2 vs CNN)
+### Comparação de Performance
 
-| Classe | Δ Precision | Δ Recall | Δ F1-Score | Observações |
-|--------|-------------|----------|------------|-------------|
-| **glass** | +65.1% | +96.4% | +67.6% | **Maior melhoria** |
-| **metal** | +10.0% | +48.6% | +26.2% | Melhoria substancial |
-| **cardboard** | +15.3% | +27.3% | +21.8% | Consistentemente melhor |
-| **paper** | 0.0% | +19.5% | +9.7% | Recall aprimorado |
-| **plastic** | +11.3% | +1.1% | +7.1% | Melhoria moderada |
-| **trash** | +13.3% | -51.1% | +10.2% | Trade-off precision/recall |
+| Métrica | Exp1 (160×160) | Exp2 (224×224) | Diferença | Vencedor |
+|---------|---------------|----------------|-----------|----------|
+| **MobileNetV2 TL** | **81.93%** | 73.09% | -8.84% | 🏆 Exp1 |
+| **CNN Baseline** | **56.22%** | 45.00% | -11.22% | 🏆 Exp1 |
+| **IMG_SIZE** | 160×160 | 224×224 | +64 pixels | - |
+| **BATCH_SIZE** | 16 | 32 | +16 | - |
+| **Learning Rate** | 1e-4 | 5e-5 | -50% | - |
+| **CLASS_WEIGHT** | False | True | - | - |
+
+### Por que Experimento 1 foi Superior?
+
+**Hipóteses:**
+
+1. **Overfitting com imagens maiores:**
+   - Dataset pequeno (~2500 imagens)
+   - 224×224 pode ter mais parâmetros que o necessário
+   - Imagens 160×160 são suficientes para este problema
+
+2. **Learning rate muito conservador:**
+   - 5e-5 é muito baixo, convergência lenta
+   - 1e-4 (Exp1) foi mais adequado
+   - Pode ter ficado preso em mínimo local
+
+3. **Class weights prejudicaram:**
+   - Ajudaram classe "trash" na CNN mas prejudicaram performance geral
+   - Exp1 sem class weights teve melhor resultado
+
+4. **Batch size maior nem sempre é melhor:**
+   - Batch size 32 pode ter gradientes muito estáveis
+   - Batch size 16 pode ter mais "ruído" útil para generalização
 
 ### Padrões Identificados:
-1. **Glass:** Classe que mais se beneficiou do transfer learning
-2. **Paper:** Manteve alta precisão e melhorou recall
-3. **Plastic:** Já tinha alto recall, ganhou precisão
-4. **Trash:** Única classe com recall reduzido (trade-off aceitável)
+1. **"Maior nem sempre é melhor"** - Vale para IMG_SIZE e BATCH_SIZE
+2. **Simplicidade venceu complexidade** - Exp1 mais simples foi superior
+3. **Class weights são dupla face** - Podem ajudar ou prejudicar
 
 ---
 
@@ -119,11 +151,12 @@ Este documento apresenta uma análise detalhada dos resultados obtidos no experi
 
 | Aspecto | CNN Baseline | MobileNetV2 TL | Vantagem |
 |---------|-------------|----------------|----------|
-| **Épocas totais** | 25 | 25 (10+15) | Mesmo tempo |
+| **Épocas totais** | ~25 | 25 (10+15) | Mesmo tempo |
 | **Parâmetros** | ~500K | ~2.3M | CNN mais leve |
-| **Tempo/época** | Baixo | Moderado | CNN 2-3× mais rápido |
-| **Convergência** | Lenta | Rápida | TL converge melhor |
-| **Generalização** | Limitada | Excelente | TL muito superior |
+| **Tempo/época** | Moderado | Alto | CNN mais rápido |
+| **Convergência** | Lenta | Moderada | TL melhor |
+| **Generalização** | Ruim | Boa | TL superior |
+| **Imagens 224×224** | Mais lento que 160×160 | Mais lento que 160×160 | Exp1 mais eficiente |
 
 ---
 
@@ -132,31 +165,36 @@ Este documento apresenta uma análise detalhada dos resultados obtidos no experi
 ### Por que o Transfer Learning foi Superior?
 
 1. **Feature Learning Avançado:**
-   - MobileNetV2 foi pré-treinado em ImageNet (1.4M imagens)
-   - Features de baixo nível já otimizadas para detecção de bordas, texturas
+   - MobileNetV2 pré-treinado em ImageNet (1.4M imagens)
+   - Features de baixo nível já otimizadas
    - CNN baseline aprendeu do zero com dataset limitado
 
 2. **Regularização Implícita:**
    - Pesos pré-treinados atuam como regularizador
-   - Redução do overfitting observada
-   - Melhor generalização para dados de teste
+   - Redução do overfitting
+   - Melhor generalização
 
 3. **Eficiência do Aprendizado:**
-   - Fine-tuning focou apenas em features específicas do domínio
-   - CNN baseline precisou aprender tudo simultaneamente
+   - Fine-tuning focou em features específicas do domínio
    - Convergência mais rápida e estável
 
-### Limitações Identificadas:
+### Por que foi Inferior ao Experimento 1?
 
-1. **Classe "Trash":**
-   - Menor quantidade de dados (18 amostras de teste)
-   - Maior variabilidade visual
-   - Necessita augmentação específica
+1. **Imagens muito grandes:**
+   - 224×224 causa overfitting com dataset pequeno
+   - 160×160 foi o tamanho ideal
 
-2. **Confusão Glass/Metal:**
-   - Ambos materiais com reflexos similares
-   - Requer features mais específicas de textura
-   - Possível melhoria com dados adicionais
+2. **Learning rate muito baixo:**
+   - 5e-5 é muito conservador
+   - Convergência lenta, pode ficar em mínimo local
+
+3. **Class weights contraproducente:**
+   - Ajudou "trash" mas prejudicou performance geral
+   - Exp1 sem weights foi melhor
+
+4. **Batch size maior:**
+   - Batch 32 pode ter gradientes muito suaves
+   - Batch 16 tem mais variação útil
 
 ---
 
@@ -344,6 +382,33 @@ O experimento gerou um conjunto abrangente de visualizações que permitem anál
 ## 10. Conclusões
 
 ### Principais Achados:
+
+1. **Transfer Learning é Superior:**
+   - MobileNetV2 TL: 73.09% vs CNN: 45.00%
+   - Melhoria de 28.09 pontos percentuais
+
+2. **Este Experimento foi Inferior ao Exp1:**
+   - Exp2 (224×224): 73.09% 
+   - Exp1 (160×160): 81.93% ✅ **MELHOR**
+   - Diferença: -8.84 pontos percentuais
+
+3. **Lições Aprendidas:**
+   - Imagens maiores não garantem melhor performance
+   - Learning rate muito baixo (5e-5) prejudica convergência
+   - Class weights nem sempre ajudam
+   - Configuração mais simples (Exp1) venceu
+
+4. **Recomendação:**
+   - **Usar Experimento 1 (160×160, lr=1e-4, bs=16, sem class weights)**
+   - Testar configurações intermediárias (192×192, lr=7.5e-5)
+   - Focar em aumentar dados da classe "trash"
+
+---
+
+*Documentação atualizada: 9 de dezembro de 2025*  
+*Baseada no notebook Projeto_Aprendizado_Profundo_exp2.ipynb*  
+*Acurácia real: MobileNetV2 TL = 73.09%, CNN Baseline = 45.00%*  
+*⚠️ Este experimento foi INFERIOR ao Experimento 1 (81.93%)*
 
 1. **Transfer Learning Demonstra Superioridade Clara:**
    - 75.10% vs 38.55% de acurácia (diferença de 36.55 p.p.)

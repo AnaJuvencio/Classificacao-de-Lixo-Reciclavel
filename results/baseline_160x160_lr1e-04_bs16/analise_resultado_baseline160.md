@@ -1,16 +1,17 @@
 # Documentação dos Resultados - Classificação de Lixo Reciclável
 
-## Configuração do Experimento Atual
+## Configuração do Experimento
 
 ```python
-# Configuração atual do notebook
+# Configuração do notebook Projeto_Aprendizado_Profundo.ipynb
 IMG_SIZE = (160, 160)          # Tamanho das imagens
 BATCH_SIZE = 16                # Tamanho do batch
-base_lr = 1e-4                 # Taxa de aprendizado
+base_lr = 1e-4                 # Taxa de aprendizado (0.0001)
 USE_CLASS_WEIGHT = False       # Balanceamento desativado
 EPOCHS_CNN = 20                # Épocas CNN Baseline
 EPOCHS_TL_FREEZE = 8           # Épocas fase freeze
 EPOCHS_TL_FINETUNE = 10        # Épocas fase fine-tuning
+SEED = 42                      # Reprodutibilidade
 ```
 
 ## Dataset
@@ -19,7 +20,7 @@ EPOCHS_TL_FINETUNE = 10        # Épocas fase fine-tuning
 - **Classes**: 6 categorias
   - cardboard, glass, metal, paper, plastic, trash
 - **Divisão**: 80% treino / 20% validação+teste
-- **Augmentação**: RandomFlip, RandomRotation(0.03), RandomZoom(0.05)
+- **Augmentação**: RandomFlip(horizontal), RandomRotation(0.03), RandomZoom(0.05)
 
 ## Resultados dos Modelos
 
@@ -27,14 +28,14 @@ EPOCHS_TL_FINETUNE = 10        # Épocas fase fine-tuning
 
 | Modelo | Acurácia no Teste | Performance |
 |--------|------------------|-------------|
-| **MobileNetV2 TL** | **78.71%** | 🏆 **Melhor modelo** |
-| CNN Baseline | 57.83% | Baseline |
-| **Diferença** | **+20.88 pontos percentuais** | **Melhoria significativa** |
+| **MobileNetV2 TL** | **81.93%** | 🏆 **Melhor modelo** |
+| CNN Baseline | 56.22% | Baseline |
+| **Diferença** | **+25.71 pontos percentuais** | **Melhoria significativa** |
 
 ### CNN Baseline - Resultados Detalhados
 
-**Acurácia no Teste**: 57.83%  
-**Loss no Teste**: 1.1819
+**Acurácia no Teste**: 56.22%  
+**Loss no Teste**: ~1.18
 
 **Performance por Classe**:
 
@@ -54,8 +55,8 @@ EPOCHS_TL_FINETUNE = 10        # Épocas fase fine-tuning
 
 ### MobileNetV2 Transfer Learning - Resultados Detalhados
 
-**Acurácia no Teste**: 78.71%  
-**Loss no Teste**: 0.5292
+**Acurácia no Teste**: 81.93%  
+**Loss no Teste**: ~0.52
 
 **Performance por Classe**:
 
@@ -115,20 +116,18 @@ class_report_mobilenetv2_tl.csv  # Métricas por classe TL
 models_comparison.csv            # Comparação final dos modelos
 ```
 
-## Análise dos Resultados
+## Principais Descobertas
 
-### Principais Descobertas
-
-1. **Transfer Learning é Superior**: MobileNetV2 supera CNN baseline em +20.88% de acurácia
+1. **Transfer Learning é Superior**: MobileNetV2 supera CNN baseline em +25.71% de acurácia
 2. **Problema do Desbalanceamento**: Classe "trash" tem apenas 16-17 exemplos vs 34-61 das outras
-3. **CNN Baseline Falha**: Não consegue classificar "trash" (0% performance)
+3. **CNN Baseline Falha**: Não consegue classificar "trash" adequadamente
 4. **Transfer Learning Resolve**: Consegue classificar todas as classes, incluindo "trash"
 
 ### Limitações Identificadas
 
 1. **Desbalanceamento Severo**: `USE_CLASS_WEIGHT = False` prejudica classes minoritárias
 2. **Dataset Pequeno**: Especialmente classe "trash" com poucos exemplos
-3. **Configuração Conservadora**: LR baixo (1e-4) pode limitar aprendizado
+3. **Configuração Conservadora**: LR baixo (1e-4) mas adequado para este experimento
 
 ## Recomendações para Próximos Experimentos
 
@@ -175,5 +174,6 @@ EPOCHS_TL_FINETUNE = 15
 
 ---
 
-*Documentação atualizada: 29 de novembro de 2025*  
-*Baseada na execução atual do notebook Projeto_Aprendizado_Profundo.ipynb*
+*Documentação atualizada: 9 de dezembro de 2025*  
+*Baseada na execução do notebook Projeto_Aprendizado_Profundo.ipynb*  
+*Acurácia real obtida: MobileNetV2 TL = 81.93%, CNN Baseline = 56.22%*
