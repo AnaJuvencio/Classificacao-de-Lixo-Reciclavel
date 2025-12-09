@@ -75,4 +75,4 @@ print(comparison)
 ```
 
 ---
-*Gerado automaticamente durante os experimentos de Deep Learning - Outubro 2025*
+*Gerado automaticamente durante os experimentos de Deep Learning - Dezembro 2025*
